@@ -1,0 +1,100 @@
+<!--
+ * @Description: 
+ * @Author: wyhuo2
+ * @Date: 2021-02-26 18:05:58
+ * @LastEditTime: 2023-02-22 11:44:50
+ * @LastEditors: wyhuo2
+-->
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <META HTTP-EQUIV="pragma" CONTENT="no-cache">
+    <META HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">
+    <META HTTP-EQUIV="expires" CONTENT="0">
+    <link rel="stylesheet" href="./css/webuploader.css" />
+    <link rel="stylesheet" href="./css/demo.css" />
+    <link rel="stylesheet" href="./css/style.css">
+</head>
+
+<body>
+    <div>
+        <!-- 总进度条 start -->
+        <div class="progress-container">
+            上传总进度：
+            <div id="total-bar-container">
+                <div id="progress-bar"></div>
+                <div id="progress-bg-bar"></div>
+            </div>
+
+            已上传 <i id="total-progress">0%</i>
+            <!-- <span id="cancelBtn" class="element-invisible">取消上传</span> -->
+        </div>
+        <!-- 总进度条 end -->
+
+        <!-- 文件列表 start -->
+        <div id="container">
+            <div id="uploader">
+                <div class="queueList">
+                    <div class="placeholder">
+                        <img src="./image/icon_import.png" alt="">
+                        <div id="filePicker"></div>
+                    </div>
+                    <div class="notice">
+                        <div class="title">上传须知</div>
+                        <div class="default-accept-file-tips">
+                            <p>1. 支持的文档格式为：doc、docx、ppt、pptx、xls、xlsx、pdf，请上传小于 100MB 的文档；</p>
+                            <p>2. 支持的图片格式为：jpg、jpeg、png，请上传小于 10MB 的图片；</p>
+                            <p>3. 支持的视频格式为：mp4、avi、mkv、mov、rmvb、mpeg、mpg、wmv，请上传小于 2GB 的视频；</p>
+                            <p>4. 支持的音频格式为：mp3，请上传小于 500MB 的音频；</p>
+                            <p>其他格式课件可通过“格式工厂”等多媒体格式转换软件，转成系统支持的格式后上传</p>
+                        </div>
+                    </div>
+                    <!-- JS会将文件队列的容器放在这里 -->
+                    <!-- <ul class="filelist"></ul> -->
+                    <!-- JS会将文件队列的容器放在这里 -->
+                </div>
+
+                <div class="statusBar" style="display:none;">
+                    <div class="info"></div>
+                    <!-- <div class="btns">
+                        <div id="filePicker2"></div>
+                        <div class="uploadBtn">开始上传</div>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+        <!-- 文件列表 end -->
+
+        <!-- 上传须知 start -->
+        <div class="uploading-notice element-invisible">
+            <span class="uploading-notice-title"><img src="./image/icon_question_mark.png">上传须知</span>
+            <div class="uploading-notice-details element-invisible">
+                <div class="title">上传须知</div>
+                <div class="default-accept-file-tips">
+                    <p>1. 支持的文档格式为：doc、docx、ppt、pptx、xls、xlsx、pdf，请上传小于 100MB 的文档；</p>
+                    <p>2. 支持的图片格式为： jpg、jpeg、png，请上传小于 10MB 的图片；</p>
+                    <p>3. 支持的视频格式为：mp4、avi、mkv、mov、rmvb、mpeg、mpg、wmv，请上传小于 2GB 的视频；</p>
+                    <p>4. 支持的音频格式为：mp3，请上传小于 500MB 的音频；</p>
+                    <p>其他格式课件可通过“格式工厂”等多媒体格式转换软件，转成系统支持的格式后上传</p>
+                </div>
+            </div>
+        </div>
+        <!-- 上传须知 end -->
+
+        <div id="footer" class="element-invisible">
+            <div class="button" id="continueButton"></div>
+            <div class="button element-invisible" id="confirmButton">确定</div>
+        </div>
+
+    </div>
+
+    <script src="./js/jquery.min.js"></script>
+    <script src="./js/ajaxf.js"></script>
+    <script src="./js/jquery.cookie.min.js"></script>
+    <script src="./js/webuploader-2.0.0.js"></script>
+    <script src="./js/index.js?t=202111240900"></script>
+</body>
+
+</html>
