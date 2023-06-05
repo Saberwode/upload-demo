@@ -131,7 +131,9 @@ const verifyFileSize = (file) => {
   const condition = rules.get(
     acceptFileType.length && acceptFileSize ? 'any' : fileType
   );
+  // 文件大小超过限制
   if (condition !== undefined && fileSize > condition.size) {
+    // 因为引入方式为通过iframe引入，所以通过postMessage将参数传递过去
     window.parent.postMessage(
       {
         cmd: 'onMessage',
@@ -186,7 +188,7 @@ const main = () => {
   const $statusBar = $wrap.find('.statusBar'); // 状态栏，包括进度和控制按钮
   const $info = $statusBar.find('.info'); // 文件总体选择信息
   const $upload = $wrap.find('.uploadBtn'); // 上传按钮
-  const $placeHolder = $wrap.find('.placeholder'); // 没选择文件之前的内容
+  const $placeHolder = $wrap.find('.placeholder'); // 没选择文件之前的内容，里面有个上传图标
   const $notice = $wrap.find('.notice');
   const $cancelBtn = $('#cancelBtn'); // 取消上传的按钮
   const $footer = $('#footer');
@@ -209,7 +211,7 @@ const main = () => {
       pText += `，请上传小于${acceptFileSize}MB的文件`;
     }
 
-    // 更改提示文字
+    // 更改提示文字 注：此部分是将上传须知插入到html中，也就是展示上传须知文字
     [$uploadingNoticeDetails, $notice].forEach((element) => {
       const div = document.createElement('div');
       const p = document.createElement('p');
@@ -232,9 +234,10 @@ const main = () => {
     compress: false, // 关闭图片压缩功能，否则会导致图片的MD5秒传功能失效
     chunkSize: 5242880, // 分片大小设置，默认为5MB（5,242,880字节）
     timeout: 5 * 60 * 1000, // 超时时间设置为五分钟，不写默认为两分钟
+    // 注：指定选择文件的按钮容器，不指定则不创建按钮
     pick: {
       id: '#filePicker', // 上传按钮的ID
-      innerHTML: '点击选择文件' // 上传按钮的文字信息
+      innerHTML: '点击选择' // 上传按钮的文字信息
     },
     extension: {
       token: token,
@@ -261,6 +264,7 @@ const main = () => {
       return;
     }
 
+    // 待查看，在index.html的demo.css中有引用
     $upload.removeClass('state-' + state).addClass('state-' + val);
     state = val;
 
@@ -417,6 +421,7 @@ const main = () => {
       //   return false;
       // });
 
+      // 文件无效
       if (file.getStatus() === 'invalid') {
         showError(file.statusText);
       } else {
@@ -530,6 +535,7 @@ const main = () => {
     fileCount--;
     fileSize -= file.size;
 
+    // fileCount不为0 进入等待状态
     if (!fileCount) {
       setState('pending');
     }

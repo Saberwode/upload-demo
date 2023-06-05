@@ -3,7 +3,7 @@
  * @Author: jmguo2
  * @Date: 2023-03-13 09:53:15
  * @LastEditors: jmguo2
- * @LastEditTime: 2023-03-30 11:26:26
+ * @LastEditTime: 2023-06-02 16:02:40
  */
 import { fileURLToPath, URL } from 'node:url'
 
@@ -16,7 +16,7 @@ import ElementPlus from 'unplugin-element-plus/vite'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [vue({
-    reactivityTransform: true,
+    reactivityTransform: false,
   }),
     AutoImport({
       resolvers: [ElementPlusResolver()],
