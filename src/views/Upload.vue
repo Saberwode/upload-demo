@@ -3,7 +3,7 @@
  * @Author: jmguo2
  * @Date: 2023-03-13 10:08:16
  * @LastEditors: jmguo2
- * @LastEditTime: 2023-06-05 10:47:18
+ * @LastEditTime: 2023-06-13 10:49:04
 -->
 <template>
   <div class="addCourseware">
@@ -16,7 +16,7 @@
       <template #header> 这是标题 </template>
       <div class="progress-container">
         上传总进度：<el-progress
-          :percentage="30"
+          :percentage="percentage"
           class="progress"
         ></el-progress>
       </div>
@@ -28,23 +28,59 @@
       </div>
       <!-- 上传须知 -->
       <div class="notic">
-        <header>上传须知</header>
-        <div class="default-accept-file-tips">
-          <p>
-            1.
-            支持的文档格式为：doc、docx、ppt、pptx、xls、xlsx、pdf，请上传小于
-            100MB 的文档；
-          </p>
-          <p>2. 支持的图片格式为：jpg、jpeg、png，请上传小于 10MB 的图片；</p>
-          <p>
-            3.
-            支持的视频格式为：mp4、avi、mkv、mov、rmvb、mpeg、mpg、wmv，请上传小于
-            2GB 的视频；
-          </p>
-          <p>4. 支持的音频格式为：mp3，请上传小于 500MB 的音频；</p>
-          <p>
-            其他格式课件可通过“格式工厂”等多媒体格式转换软件，转成系统支持的格式后上传
-          </p>
+        <header>
+          <el-popover>
+            <template #reference>
+              <el-icon><QuestionFilled /></el-icon>
+            </template>
+            <template #default>
+              <div v-if="acceptFileType.length">
+                <div class="test">
+                  1.
+                  支持的文档格式为：doc、docx、ppt、pptx、xls、xlsx、pdf，请上传小于
+                  100MB 的文档；
+                </div>
+                <div>
+                  2. 支持的图片格式为：jpg、jpeg、png，请上传小于 10MB 的图片；
+                </div>
+                <div>
+                  3.
+                  支持的视频格式为：mp4、avi、mkv、mov、rmvb、mpeg、mpg、wmv，请上传小于
+                  2GB 的视频；
+                </div>
+                <div>4. 支持的音频格式为：mp3，请上传小于 500MB 的音频；</div>
+                <div>
+                  其他格式课件可通过“格式工厂”等多媒体格式转换软件，转成系统支持的格式后上传
+                </div>
+              </div>
+              <div v-else>
+                {{ noticText }}
+              </div>
+            </template>
+          </el-popover>
+          上传须知
+        </header>
+        <div class="default-accept-file-tips" v-if="isShowNotic">
+          <div v-if="acceptFileType.length">
+            <p>
+              1.
+              支持的文档格式为：doc、docx、ppt、pptx、xls、xlsx、pdf，请上传小于
+              100MB 的文档；
+            </p>
+            <p>2. 支持的图片格式为：jpg、jpeg、png，请上传小于 10MB 的图片；</p>
+            <p>
+              3.
+              支持的视频格式为：mp4、avi、mkv、mov、rmvb、mpeg、mpg、wmv，请上传小于
+              2GB 的视频；
+            </p>
+            <p>4. 支持的音频格式为：mp3，请上传小于 500MB 的音频；</p>
+            <p>
+              其他格式课件可通过“格式工厂”等多媒体格式转换软件，转成系统支持的格式后上传
+            </p>
+          </div>
+          <div v-else>
+            {{ noticText }}
+          </div>
         </div>
       </div>
       <!-- 继续添加button，确定button -->
@@ -56,16 +92,21 @@
     </el-dialog>
     <!-- <div id="filePicker"> 
     </div> -->
-
   </div>
 </template>
 
 <!-- <script src="../../public/webuploader/js/jquery.min.js"></script> -->
 
 <script setup lang="ts">
-import { ElDialog, ElProgress } from "element-plus";
-import { onMounted, nextTick } from "vue";
+import { ElDialog, ElProgress, ElPopper } from "element-plus";
+import { onMounted, nextTick, ref, computed } from "vue";
+// 界面参数（除去uploader外的参数）
+let percentage = ref(0); // 上传总进度
+let isShowNotic = true;
+
 let isShowDialog = true;
+let noticText = ref("");
+
 // 传递给upload的参数
 const accept = [
   {
@@ -109,20 +150,21 @@ const accept = [
       "application/vnd.ms-powerpoint,application/vnd.openxmlformats-officedocument.presentationml.presentation",
   },
 ];
-let uploader:any;
-let verify:boolean; // 当前文件校验状态
+let uploader: any;
+let verify: boolean; // 当前文件校验状态
 let token = "";
 let host = "";
-let acceptFileType:string[] = [];
+let acceptFileType: string[] = [];
 let acceptFileSize = 0; //仅当acceptFileType存在时才生效
-let fileNumLimit = null;
+let fileNumLimit: number | null = null;
 // const webuploaderHtml = `http://localhost:5173/webuploader/index.html?timestamp=${new Date().valueOf()}`;
+
 /**
  * @description: 检测文件大小
  * @param {*} file
  * @return {*}
  */
-const verifyFileSize = (file) => {
+const verifyFileSize = (file: any) => {
   const rules = new Map([
     ["video", { size: 2048, msg: "请上传小于2GB的视频" }],
     ["audio", { size: 500, msg: "请上传小于500MB的音频" }],
@@ -157,17 +199,47 @@ const verifyFileSize = (file) => {
   }
 };
 /**
+ * @description: 刷新总进度条
+ * @param {*} percent
+ * @return {*}
+ */
+const changeTotalBar = (percent: number) => {
+  // const $bar = $('#progress-bar');
+  // $bar.width(percent);
+  percentage.value = percent;
+};
+
+/**
+ * @description: 获取文件后缀
+ * @param {*} fileSuffix
+ * @return {*}
+ */
+const getFileType = (fileSuffix: string) => {
+  // changeTotalBar()
+  let fileType = "";
+  if (/\.(mp4|avi|mkv|mov|rmvb|mpeg|mpg|wmv)$/.test(fileSuffix)) {
+    fileType = "video";
+  } else if (/\.(mp3|MP3)$/.test(fileSuffix)) {
+    fileType = "audio";
+  } else if (/\.(jpg|jpeg|png)$/.test(fileSuffix)) {
+    fileType = "graphic";
+  } else {
+    fileType = "document";
+  }
+  return fileType;
+};
+/**
  * @description: 获取音视频文件的长度
  * @param {*} file
  * @return {*}
  */
-const getDuration = (file) => {
+const getDuration = (file: any) => {
   return new Promise((resolve) => {
     const fileUrl = URL.createObjectURL(file.source.source);
     const audioElement = new Audio(fileUrl);
 
     const setDuration = () => {
-      let duration = audioElement.duration;
+      let duration: any = audioElement.duration;
       duration = duration.toFixed();
       duration = parseInt(duration);
       resolve(duration);
@@ -193,13 +265,17 @@ const main = async () => {
   let fileSize = 0; // 添加的文件总大小
   let state = "pending"; // 可能有pending、ready、uploading、confirm、done
 
-  const tempAccept:string[] = [];
+  // acceptFileType为可配置项，由父页面传入，如果存在该项，则
+  // 替换原有的上传须知
+  const tempAccept: any[] = [];
   if (acceptFileType.length) {
     let pText = "支持的格式为：";
     acceptFileType.forEach((type) => {
       const a = accept.find((o) => o.title === type);
-      tempAccept.push(a);
-      pText += a.extensions.split(",").join("、") + "、";
+      if (a) {
+        tempAccept.push(a);
+        pText += a.extensions.split(",").join("、") + "、";
+      }
     });
 
     pText = pText.slice(0, pText.length - 1); //去掉最后的顿号
@@ -208,23 +284,12 @@ const main = async () => {
     }
 
     // 更改提示文字 注：此部分是将上传须知插入到html中，也就是展示上传须知文字
-    // [$uploadingNoticeDetails, $notice].forEach((element) => {
-    //   const div = document.createElement('div');
-    //   const p = document.createElement('p');
-    //   p.innerHTML = pText;
-    //   div.appendChild(p);
-
-    //   element[0].replaceChild(
-    //     div,
-    //     element.find('.default-accept-file-tips')[0]
-    //   );
-    // });
+    noticText.value = pText;
   }
 
-  
   // 创建WebUploader实例
   await nextTick();
-  uploader = window.WebUploader.create({
+  uploader = (window as any).WebUploader.create({
     accept: tempAccept.length ? tempAccept : accept,
     prepareNextFile: true,
     chunked: true, // 开启分片上传
@@ -243,11 +308,9 @@ const main = async () => {
     },
     fileNumLimit: fileNumLimit,
   });
-  console.log('看看window',uploader);
-  let filePicker = document.getElementById('filePicker')
-  console.log('filepicker',filePicker);
-  
-
+  console.log("看看window", uploader);
+  let filePicker = document.getElementById("filePicker");
+  console.log("filepicker", filePicker);
 
   // 增加“继续添加”按钮
   uploader.addButton({
@@ -260,13 +323,13 @@ const main = async () => {
    * @param {*} val
    * @return {*}
    */
-  const setState = (val) => {
+  const setState = (val: string) => {
     let stats;
-
+    // 可能有pending、ready、uploading、confirm、done
     if (val === state) {
       return;
     }
-
+    const upload = document.getElementById
     // $upload.removeClass("state-" + state).addClass("state-" + val);
     state = val;
 
@@ -551,7 +614,6 @@ const main = async () => {
     //   $li.off().find(".file-panel").off().end().remove();
     // };
 
-
     fileCount--;
     fileSize -= file.size;
 
@@ -573,7 +635,6 @@ const main = async () => {
     // const $li = $(`#${file.id}`);
     // const $progressTxt = $li.find(".progress-txt");
     // $progressTxt.text("正在扫描：" + Math.round(percentage * 100) + "%");
-
     // 扫描进度文案更新
   };
 
@@ -681,7 +742,9 @@ const main = async () => {
     // });
 
     const percent = total ? loaded / total : 0;
-    const showPercentage = Math.round(percent * 100) + "%";
+
+    // const showPercentage = Math.round(percent * 100) + "%";
+    const showPercentage = Math.round(percent * 100);
     // totalProgress.text(showPercentage);
     // 调整进度
     changeTotalBar(showPercentage);
@@ -810,5 +873,8 @@ onMounted(() => {
 .addCourseware {
   width: 750px;
   background: #fff;
+}
+.test {
+  width: 100%;
 }
 </style>

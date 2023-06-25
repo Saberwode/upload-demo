@@ -3,10 +3,11 @@
  * @Author: jmguo2
  * @Date: 2023-03-13 09:53:15
  * @LastEditors: jmguo2
- * @LastEditTime: 2023-03-13 11:55:14
+ * @LastEditTime: 2023-06-06 16:56:15
  */
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import * as ElementPlusIconsVue from '@element-plus/icons-vue'
 
 
 import App from './App.vue'
@@ -21,3 +22,7 @@ app.use(createPinia())
 app.use(router)
 
 app.mount('#app')
+
+for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
+  app.component(key, component)
+}

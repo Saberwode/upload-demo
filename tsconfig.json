@@ -6,7 +6,9 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["element-plus/global","vue/ref-macros"]
+    "types": ["element-plus/global","vue/ref-macros"],
+    "lib": ["esnext", "dom"],
+    "isolatedModules": true,
   },
 
   "references": [
